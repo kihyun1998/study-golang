@@ -8,12 +8,11 @@ import "C"
 import (
 	"bytes"
 	"crypto/tls"
+	"fmt"
 	"io"
 	"net/http"
 	"unsafe"
 )
-
-var Rst *C.char
 
 func Get(uri, cookie string) (string, error) {
 	req, err := http.NewRequest("GET", uri, nil)
@@ -79,18 +78,25 @@ func PostPutDelete(method, uri, cookie, msg string) (string, error) {
 
 //export RequestGet
 func RequestGet(cURI *C.char, cCookie *C.char) *C.char {
-
+	defer func() {
+        if r := recover(); r != nil {
+            fmt.Println("GET OPEN ERROR", r)
+        }
+    }()
 	uri := C.GoString(cURI)
 	cookie := C.GoString(cCookie)
 
 	str, err := Get(uri, cookie)
 	if err != nil {
-		Rst := C.CString("[Error] : " + err.Error())
-		return Rst
+		rst := C.CString("[Error] : " + err.Error())
+		return rst
 	}
-	Rst := C.CString(string([]rune(str)))
-
-	return Rst
+	rst := C.CString(string([]rune(str)))
+	fmt.Println("------------------create---------------------------------")
+	fmt.Println(rst)
+	fmt.Println("-------------------------------------------------------")
+	
+	return rst
 }
 
 //export RequestPPD
@@ -103,17 +109,27 @@ func RequestPPD(cMethod *C.char, cURI *C.char, cCookie *C.char, cMsg *C.char) *C
 
 	str, err := PostPutDelete(method, uri, cookie, msg)
 	if err != nil {
-		Rst := C.CString("[Error] : " + err.Error())
-		return Rst
+		rst := C.CString("[Error] : " + err.Error())
+		return rst
 	}
-	Rst := C.CString(string([]rune(str)))
+	rst:= C.CString(string([]rune(str)))
 
-	return Rst
+	return rst
 }
 
 //export Free
-func Free() {
-	C.free(unsafe.Pointer(Rst))
+func Free(rst *C.char) {
+	// 주소값을 C#에서 받아서 그걸 Free해주도록
+	// 전역변수 쓰지마
+	defer func() {
+        if r := recover(); r != nil {
+            fmt.Println("OPEN ERROR", r)
+        }
+    }()
+	fmt.Println("------------------free---------------------------------")
+	fmt.Println(rst)
+	C.free(unsafe.Pointer(rst))
+	fmt.Println("-------------------------------------------------------")
 }
 
 func main() {}

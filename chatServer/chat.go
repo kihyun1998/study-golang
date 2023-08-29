@@ -3,6 +3,8 @@ package main
 import (
 	"container/list"
 	"time"
+
+	socketio "github.com/googollee/go-socket.io"
 )
 
 // ===============================구조체=================================
@@ -115,20 +117,23 @@ func Chatroom() {
 	}
 }
 
-// func main() {
-// 	server := socketio.NewServer(nil) //초기화
+func main() {
+	server := socketio.NewServer(nil)
 
-// 	go Chatroom()
+	server.OnConnect("/", func(so socketio.Conn) error {
+		so.SetContext("")
+		s := Subscribe()
+		Join(so.ID())
+		for _, event := range s.Archive {
+			so.Emit("event", event)
+		}
 
-// 	server.OnConnect("connection",func(so socketio.Conn) error{
-// 		s:=Subscribe()
-// 		Join(so.ID())
+		return nil
+	})
 
-// 		//쌓인 이벤트들을 사용자에게 보냄
-// 		for _, event := range s.Archive{
-// 			so.Emit("event",event)
-// 		}
-// 		newMessages := make(chan string)
-// 		so.
-// 	})
-// }
+	server.OnEvent("/", "message", func(so socketio.Conn, msg string) {
+		newMassages := make(chan string)
+		so.BroadcastToRoom("/", "message")
+	})
+
+}

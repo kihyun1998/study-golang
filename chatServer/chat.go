@@ -2,6 +2,8 @@ package main
 
 import (
 	"container/list"
+	"log"
+	"net/http"
 	"time"
 
 	socketio "github.com/googollee/go-socket.io"
@@ -118,22 +120,45 @@ func Chatroom() {
 }
 
 func main() {
-	server := socketio.NewServer(nil)
+	server, err := socketio.NewServer(nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	server.OnConnect("/", func(so socketio.Conn) error {
-		so.SetContext("")
+	go Chatroom()
+
+	server.On("connection", func(so socketio.Socket) {
 		s := Subscribe()
-		Join(so.ID())
+		Join(so.Id())
 		for _, event := range s.Archive {
 			so.Emit("event", event)
 		}
 
-		return nil
+		newMessages := make(chan string)
+		so.On("message", func(msg string) {
+			newMessages <- msg
+		})
+
+		so.On("disconnection", func() {
+			Leave(so.Id())
+			s.Cancel()
+		})
+
+		go func() {
+			for {
+				select {
+				case event := <-s.New:
+					so.Emit("event", event)
+				case msg := <-newMessages:
+					Say(so.Id(), msg)
+				}
+			}
+		}()
+
 	})
 
-	server.OnEvent("/", "message", func(so socketio.Conn, msg string) {
-		newMassages := make(chan string)
-		so.BroadcastToRoom("/", "message")
-	})
+	http.Handle("/socket.io/", server)
+	http.Handle("/", http.FileServer(http.Dir("static")))
+	http.ListenAndServe(":5000", nil)
 
 }

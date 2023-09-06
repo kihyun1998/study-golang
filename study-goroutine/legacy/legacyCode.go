@@ -28,3 +28,13 @@ package legacy
 // 	}
 // 	fmt.Scanln()
 // }
+
+/*
+go routine에서
+
+go func(입력){
+	명령어
+}(인자값)
+
+이다.
+*/

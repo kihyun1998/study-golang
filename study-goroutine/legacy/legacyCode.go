@@ -24,7 +24,7 @@ package legacy
 // 	for i := 0; i < 100; i++ {
 // 		go func(n int) {
 // 			fmt.Println(s, n)
-// 		}(i) // << 얘가 함수 인자값
+// 		}(i) // << 얘가 함수 인자값으로 들어감
 // 	}
 // 	fmt.Scanln()
 // }

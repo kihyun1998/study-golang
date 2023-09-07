@@ -4,47 +4,49 @@ import (
 	"fmt"
 	"net"
 	"net/rpc"
+	"os"
 )
 
-type Greeter struct{}
-
 type Reply struct {
-	r string
+	R string
 }
+
+type Greeter int
 
 func (g *Greeter) Greet(name *string, reply *Reply) error {
 
-	reply.r = fmt.Sprintf("Hello, %s!", *name)
-
+	reply.R = fmt.Sprintf("Hello, %s!", *name)
 	return nil
 }
 
 func main() {
 
-	addr := "localhost:12345"
-
 	greeter := new(Greeter)
-
 	rpc.Register(greeter)
 
-	listener, err := net.Listen("tcp", addr)
+	tcpAddr, err := net.ResolveTCPAddr("tcp", ":12345")
+	checkError(err)
 
-	if err != nil {
-		fmt.Println("Error listening:", err)
-		return
-	}
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	checkError(err)
 	defer listener.Close()
-
-	fmt.Printf("RPC server listening on %s\n", addr)
+	fmt.Printf("RPC server listening on %s\n", ":12345")
 
 	for {
 		conn, err := listener.Accept()
-
 		if err != nil {
-			fmt.Println("Error accepting connection:", err)
 			continue
 		}
+
 		defer conn.Close()
+
 		go rpc.ServeConn(conn)
+	}
+}
+
+func checkError(err error) {
+	if err != nil {
+		fmt.Println("Fatal error ", err.Error())
+		os.Exit(1)
 	}
 }

@@ -22,10 +22,7 @@ type Reply struct {
 }
 
 func main() {
-
-	fmt.Println("===시작===")
-	client, err := rpc.Dial("tcp", "127.0.0.1:6000")
-	fmt.Println(client)
+	client, err := rpc.Dial("tcp", "127.0.0.1:12345")
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -33,11 +30,10 @@ func main() {
 
 	defer client.Close()
 
-	args := &Args{1, 2}
-	reply := new(Reply)
+	var reply Reply
+	args := Args{17, 8}
 
-	err = client.Call("Calc.Sum", args, reply)
-	fmt.Println(err)
+	err = client.Call("Calc.Sum", args, &reply)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -46,10 +42,8 @@ func main() {
 
 	args.A = 4
 	args.B = 9
-	sumCall := client.Go("Calc.Sum", args, reply, nil)
-
-	fmt.Println(sumCall)
+	sumCall := client.Go("Calc.Sum", args, &reply, nil)
 	<-sumCall.Done
-	fmt.Println(sumCall)
+
 	fmt.Println("async : ", reply.C)
 }

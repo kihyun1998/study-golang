@@ -7,7 +7,7 @@ import (
 )
 
 type Reply struct {
-	r string
+	R string
 }
 
 func main() {
@@ -18,11 +18,11 @@ func main() {
 
 	defer client.Close()
 
-	reply := new(Reply)
+	var reply Reply
 	name := "park"
 	err = client.Call("Greeter.Greet", name, &reply)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(&reply.r)
+	fmt.Println(reply.R)
 }

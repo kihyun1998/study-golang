@@ -1,0 +1,5 @@
+syntax = "proto3"
+
+package v1.user;
+
+option go_package = "github.com/kihyun1998/"

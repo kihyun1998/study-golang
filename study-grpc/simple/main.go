@@ -4,10 +4,22 @@ import (
 	"log"
 	"net"
 
+	user_proto "study-golang/study-grpc/protos/v1/user"
+
+	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 )
 
 const port = "5000"
+
+type userServer struct {
+	user_proto.UserServer
+}
+
+func (s *userServer) GetUser(ctx context.Context, req *user_proto.GetUserRequest) (*user_proto.GetUserResponse, error) {
+	userId := req.UserId
+
+}
 
 func main() {
 	lis, err := net.Listen("tcp", ":"+port)

@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PostClient interface {
 	ListPostsByUserId(ctx context.Context, in *ListPostsByUserIdRequest, opts ...grpc.CallOption) (*ListPostsByUserIdResponse, error)
-	ListPosts(ctx context.Context, in *ListsPostsRequest, opts ...grpc.CallOption) (*ListPostsResponse, error)
+	ListPosts(ctx context.Context, in *ListPostsRequest, opts ...grpc.CallOption) (*ListPostsResponse, error)
 }
 
 type postClient struct {
@@ -39,7 +39,7 @@ func (c *postClient) ListPostsByUserId(ctx context.Context, in *ListPostsByUserI
 	return out, nil
 }
 
-func (c *postClient) ListPosts(ctx context.Context, in *ListsPostsRequest, opts ...grpc.CallOption) (*ListPostsResponse, error) {
+func (c *postClient) ListPosts(ctx context.Context, in *ListPostsRequest, opts ...grpc.CallOption) (*ListPostsResponse, error) {
 	out := new(ListPostsResponse)
 	err := c.cc.Invoke(ctx, "/v1.post.Post/ListPosts", in, out, opts...)
 	if err != nil {
@@ -53,7 +53,7 @@ func (c *postClient) ListPosts(ctx context.Context, in *ListsPostsRequest, opts 
 // for forward compatibility
 type PostServer interface {
 	ListPostsByUserId(context.Context, *ListPostsByUserIdRequest) (*ListPostsByUserIdResponse, error)
-	ListPosts(context.Context, *ListsPostsRequest) (*ListPostsResponse, error)
+	ListPosts(context.Context, *ListPostsRequest) (*ListPostsResponse, error)
 	mustEmbedUnimplementedPostServer()
 }
 
@@ -64,7 +64,7 @@ type UnimplementedPostServer struct {
 func (UnimplementedPostServer) ListPostsByUserId(context.Context, *ListPostsByUserIdRequest) (*ListPostsByUserIdResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPostsByUserId not implemented")
 }
-func (UnimplementedPostServer) ListPosts(context.Context, *ListsPostsRequest) (*ListPostsResponse, error) {
+func (UnimplementedPostServer) ListPosts(context.Context, *ListPostsRequest) (*ListPostsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListPosts not implemented")
 }
 func (UnimplementedPostServer) mustEmbedUnimplementedPostServer() {}
@@ -99,7 +99,7 @@ func _Post_ListPostsByUserId_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _Post_ListPosts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ListsPostsRequest)
+	in := new(ListPostsRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func _Post_ListPosts_Handler(srv interface{}, ctx context.Context, dec func(inte
 		FullMethod: "/v1.post.Post/ListPosts",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PostServer).ListPosts(ctx, req.(*ListsPostsRequest))
+		return srv.(PostServer).ListPosts(ctx, req.(*ListPostsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -3,11 +3,14 @@ package main
 import (
 	"context"
 	"log"
+	"net"
+	client "study-golang/study-grpc/client-server"
 	"study-golang/study-grpc/data"
 	post_proto "study-golang/study-grpc/protos/v1/post"
 	user_proto "study-golang/study-grpc/protos/v1/user"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 const port = "5001"
@@ -45,41 +48,42 @@ func (s *postServer) ListPostsByUserId(ctx context.Context, req *post_proto.List
 	}, nil
 }
 
-func (s *postServer) ListPosts(ctx context.Context, req *post_proto.ListPostsByUserIdRequest)(res *post_proto.ListPostsByUserIdResponse, error){
-	var postMessages = []*post_proto.PostMessage
+func (s *postServer) ListPosts(ctx context.Context, req *post_proto.ListPostsRequest) (*post_proto.ListPostsResponse, error) {
+	var postMessages []*post_proto.PostMessage
 
-	for _,uPost := range data.UserPosts{
-		res,err := s.userClient.GetUser(ctx,&user_proto.GetUserRequest{UserId: uPost.UserId})
-		if err != nil{
-			return nil,err
+	for _, uPost := range data.UserPosts {
+		res, err := s.userClient.GetUser(ctx, &user_proto.GetUserRequest{UserId: uPost.UserId})
+		if err != nil {
+			return nil, err
 		}
 
-		for _,post := range uPost.Posts{
-			p.Author = res.UserMessage.Name
+		for _, post := range uPost.Posts {
+			post.Author = res.UserMessage.Name
 		}
-		postMessages = append(postMessages,uPost.Posts...)
+		postMessages = append(postMessages, uPost.Posts...)
 	}
 
 	return &post_proto.ListPostsResponse{
 		PostMessages: postMessages,
-	},nil
+	}, nil
 }
 
 func main() {
-	listen, err := net.Listen("tcp",":"+port)
-	if err!=nil{
-		log.Fatalf("Failed : %v",err)
+	listen, err := net.Listen("tcp", ":"+port)
+	if err != nil {
+		log.Fatalf("Failed : %v", err)
 	}
 
 	isUserClient := client.GetUserClient("localhost:5000")
 	grpcServer := grpc.NewServer()
-	post_proto.RegisterPostServer(grpcServer,&postServer{
+	reflection.Register(grpcServer)
+	post_proto.RegisterPostServer(grpcServer, &postServer{
 		userClient: isUserClient,
 	})
 
-	log.Printf("Start gRPC Server on %s port",port)
-	if err:=grpcServer.Serve(listen); err != nil{
-		log.Fatalf("Failed to save %s",err)
+	log.Printf("Start gRPC Server on %s port", port)
+	if err := grpcServer.Serve(listen); err != nil {
+		log.Fatalf("Failed to save %s", err)
 	}
 
 }

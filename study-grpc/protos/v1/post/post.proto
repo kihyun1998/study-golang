@@ -6,7 +6,7 @@ option go_package = "github.com/kihyun1998/study-golang/study-grpc/protos/v1/pos
 
 service Post {
     rpc ListPostsByUserId(ListPostsByUserIdRequest) returns (ListPostsByUserIdResponse);
-    rpc ListPosts(ListsPostsRequest) returns (ListPostsResponse);
+    rpc ListPosts(ListPostsRequest) returns (ListPostsResponse);
 }
 
 message PostMessage{
@@ -25,7 +25,7 @@ message ListPostsByUserIdResponse{
     repeated PostMessage post_messages = 1;
 }
 
-message ListsPostsRequest{}
+message ListPostsRequest{}
 
 message ListPostsResponse{
     repeated PostMessage post_messages = 1;

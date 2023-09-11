@@ -15,7 +15,7 @@ var (
 func GetUserClient(serviceHost string) user_proto.UserClient {
 	once.Do(func() {
 		conn, _ := grpc.Dial(serviceHost,
-			grpc.WithInsecure(),
+			grpc.WithInsecure(), // transport security 비활성화
 			grpc.WithBlock(),
 		)
 

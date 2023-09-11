@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-const port = "5000"
+const port = "5001"
 
 type postServer struct {
 	post_proto.PostServer
@@ -57,7 +57,12 @@ func (s *postServer) ListPosts(ctx context.Context, req *post_proto.ListPostsByU
 		for _,post := range uPost.Posts{
 			p.Author = res.UserMessage.Name
 		}
+		postMessages = append(postMessages,uPost.Posts...)
 	}
+
+	return &post_proto.ListPostsResponse{
+		PostMessages: postMessages,
+	},nil
 }
 
 func main() {
@@ -71,4 +76,10 @@ func main() {
 	post_proto.RegisterPostServer(grpcServer,&postServer{
 		userClient: isUserClient,
 	})
+
+	log.Printf("Start gRPC Server on %s port",port)
+	if err:=grpcServer.Serve(listen); err != nil{
+		log.Fatalf("Failed to save %s",err)
+	}
+
 }

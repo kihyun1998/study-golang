@@ -79,10 +79,10 @@ func PostPutDelete(method, uri, cookie, msg string) (string, error) {
 //export RequestGet
 func RequestGet(cURI *C.char, cCookie *C.char) *C.char {
 	defer func() {
-        if r := recover(); r != nil {
-            fmt.Println("GET OPEN ERROR", r)
-        }
-    }()
+		if r := recover(); r != nil {
+			fmt.Println("GET OPEN ERROR", r)
+		}
+	}()
 	uri := C.GoString(cURI)
 	cookie := C.GoString(cCookie)
 
@@ -95,7 +95,7 @@ func RequestGet(cURI *C.char, cCookie *C.char) *C.char {
 	fmt.Println("------------------create---------------------------------")
 	fmt.Println(rst)
 	fmt.Println("-------------------------------------------------------")
-	
+
 	return rst
 }
 
@@ -112,7 +112,7 @@ func RequestPPD(cMethod *C.char, cURI *C.char, cCookie *C.char, cMsg *C.char) *C
 		rst := C.CString("[Error] : " + err.Error())
 		return rst
 	}
-	rst:= C.CString(string([]rune(str)))
+	rst := C.CString(string([]rune(str)))
 
 	return rst
 }
@@ -122,10 +122,10 @@ func Free(rst *C.char) {
 	// 주소값을 C#에서 받아서 그걸 Free해주도록
 	// 전역변수 쓰지마
 	defer func() {
-        if r := recover(); r != nil {
-            fmt.Println("OPEN ERROR", r)
-        }
-    }()
+		if r := recover(); r != nil {
+			fmt.Println("OPEN ERROR", r)
+		}
+	}()
 	fmt.Println("------------------free---------------------------------")
 	fmt.Println(rst)
 	C.free(unsafe.Pointer(rst))
@@ -133,3 +133,6 @@ func Free(rst *C.char) {
 }
 
 func main() {}
+
+// 빌드하는 명령어
+// go build -o [dll 파일 이름].dll -buildmode=c-shared

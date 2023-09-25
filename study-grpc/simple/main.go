@@ -4,8 +4,8 @@ import (
 	"log"
 	"net"
 
-	data "study-golang/study-grpc/data"
-	user_proto "study-golang/study-grpc/protos/v1/user"
+	data "study-grpc/data"
+	user_proto "study-grpc/proto/v1/user"
 
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"

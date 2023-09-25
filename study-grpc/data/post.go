@@ -1,7 +1,7 @@
 package data
 
 import (
-	post_proto "study-golang/study-grpc/protos/v1/post"
+	post_proto "study-grpc/proto/v1/post"
 )
 
 type PostData struct {

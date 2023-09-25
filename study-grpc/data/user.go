@@ -1,7 +1,7 @@
 package data
 
 import (
-	user_proto "study-golang/study-grpc/protos/v1/user"
+	user_proto "study-grpc/proto/v1/user"
 )
 
 var UserData = []*user_proto.UserMessage{

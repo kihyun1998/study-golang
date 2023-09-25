@@ -1,7 +1,7 @@
 package client_server
 
 import (
-	user_proto "study-golang/study-grpc/protos/v1/user"
+	user_proto "study-grpc/proto/v1/user"
 	"sync"
 
 	"google.golang.org/grpc"

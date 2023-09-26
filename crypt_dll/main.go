@@ -29,8 +29,8 @@ func UnpaddingPKCS7(cipherText []byte, blockSize int) []byte {
 	return cipherText[:len(cipherText)-lastNum]
 }
 
-//export SecurityFree
-func SecurityFree(rst *C.char) {
+//export CryptFree
+func CryptFree(rst *C.char) {
 	defer func() {
 		if r := recover(); r != nil {
 			fmt.Println("OPEN ERROR", r)
@@ -43,8 +43,8 @@ func SecurityFree(rst *C.char) {
 	fmt.Println("============================================")
 }
 
-//export AES256DecryptAES
-func AES256DecryptAES(cCipherBase64Text *C.char, cKey *C.char, cIV *C.char) *C.char {
+//export AesDecrypt
+func AesDecrypt(cCipherBase64Text *C.char, cKey *C.char, cIV *C.char) *C.char {
 
 	sKey := C.GoString(cKey)
 	sIV := C.GoString(cIV)

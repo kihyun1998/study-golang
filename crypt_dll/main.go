@@ -37,7 +37,7 @@ func CryptFree(rst *C.char) {
 		}
 	}()
 
-	fmt.Println("================SecurityFree================")
+	fmt.Println("================CryptFree================")
 	fmt.Println(rst)
 	C.free(unsafe.Pointer(rst)) // Free the memory allocated by C.CString
 	fmt.Println("============================================")

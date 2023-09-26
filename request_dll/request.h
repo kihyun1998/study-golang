@@ -81,7 +81,7 @@ extern "C" {
 
 extern __declspec(dllexport) char* RequestGet(char* cURI, char* cCookie);
 extern __declspec(dllexport) char* RequestPPD(char* cMethod, char* cURI, char* cCookie, char* cMsg);
-extern __declspec(dllexport) void Free(char* rst);
+extern __declspec(dllexport) void RequestFree(char* rst);
 
 #ifdef __cplusplus
 }

@@ -117,8 +117,8 @@ func RequestPPD(cMethod *C.char, cURI *C.char, cCookie *C.char, cMsg *C.char) *C
 	return rst
 }
 
-//export Free
-func Free(rst *C.char) {
+//export RequestFree
+func RequestFree(rst *C.char) {
 	// 주소값을 C#에서 받아서 그걸 Free해주도록
 	// 전역변수 쓰지마
 	defer func() {

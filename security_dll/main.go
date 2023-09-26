@@ -1,41 +1,17 @@
 package main
 
+/*
+#include <stdlib.h>
+*/
+import "C"
+
 import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
 	"fmt"
+	"unsafe"
 )
-
-//export AES256Decrypt
-func AES256DecryptAES(cipherBS64, key, iv string) string {
-
-	// *C.char화 시키기
-	// C.GoString 하기
-	// C.GoByte 확인하기
-	bKey := []byte(key)
-	bIv := []byte(iv)
-
-	cipherString, err := base64.StdEncoding.DecodeString(cipherBS64)
-	if err != nil {
-		panic(err)
-	}
-
-	block, err := aes.NewCipher(bKey)
-	if err != nil {
-		fmt.Println("key error")
-	}
-
-	if len(cipherString) == 0 {
-		fmt.Println("Empty")
-	}
-
-	mode := cipher.NewCBCDecrypter(block, bIv)
-	decryptText := make([]byte, len(cipherString))
-	mode.CryptBlocks(decryptText, cipherString)
-
-	return string(UnpaddingPKCS7(decryptText, block.BlockSize()))
-}
 
 func UnpaddingPKCS7(cipherText []byte, blockSize int) []byte {
 	lastNum_byte := cipherText[len(cipherText)-1]
@@ -51,6 +27,53 @@ func UnpaddingPKCS7(cipherText []byte, blockSize int) []byte {
 		}
 	}
 	return cipherText[:len(cipherText)-lastNum]
+}
+
+//export SecurityFree
+func SecurityFree(rst *C.char) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("OPEN ERROR", r)
+		}
+	}()
+
+	fmt.Println("================SecurityFree================")
+	fmt.Println(rst)
+	C.free(unsafe.Pointer(rst)) // Free the memory allocated by C.CString
+	fmt.Println("============================================")
+}
+
+//export AES256DecryptAES
+func AES256DecryptAES(cCipherBase64Text *C.char, cKey *C.char, cIV *C.char) *C.char {
+
+	sKey := C.GoString(cKey)
+	sIV := C.GoString(cIV)
+	sCipherBase64Text := C.GoString(cCipherBase64Text)
+
+	bKey := []byte(sKey)
+	bIV := []byte(sIV)
+
+	cipherString, err := base64.StdEncoding.DecodeString(sCipherBase64Text)
+	if err != nil {
+		fmt.Println("type error")
+	}
+
+	block, err := aes.NewCipher(bKey)
+	if err != nil {
+		fmt.Println("key error")
+	}
+
+	if len(cipherString) == 0 {
+		fmt.Println("Empty")
+	}
+
+	mode := cipher.NewCBCDecrypter(block, bIV)
+	decryptText := make([]byte, len(cipherString))
+	mode.CryptBlocks(decryptText, cipherString)
+
+	rst := C.CString(string(UnpaddingPKCS7(decryptText, block.BlockSize())))
+
+	return rst
 }
 
 func main() {}

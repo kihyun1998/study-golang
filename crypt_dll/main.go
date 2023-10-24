@@ -46,6 +46,12 @@ func CryptFree(rst *C.char) {
 //export AesDecrypt
 func AesDecrypt(cCipherBase64Text *C.char, cKey *C.char, cIV *C.char) *C.char {
 
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Error", r)
+		}
+	}()
+
 	sKey := C.GoString(cKey)
 	sIV := C.GoString(cIV)
 	sCipherBase64Text := C.GoString(cCipherBase64Text)
@@ -56,15 +62,18 @@ func AesDecrypt(cCipherBase64Text *C.char, cKey *C.char, cIV *C.char) *C.char {
 	cipherString, err := base64.StdEncoding.DecodeString(sCipherBase64Text)
 	if err != nil {
 		fmt.Println("type error")
+		return C.CString("")
 	}
 
 	block, err := aes.NewCipher(bKey)
 	if err != nil {
 		fmt.Println("key error")
+		return C.CString("")
 	}
 
 	if len(cipherString) == 0 {
 		fmt.Println("Empty")
+		return C.CString("")
 	}
 
 	mode := cipher.NewCBCDecrypter(block, bIV)

@@ -3,49 +3,103 @@ package main
 import (
 	"fmt"
 	"os/exec"
+	"strconv"
 	"strings"
+	"sync"
 )
 
-func main() {		
-	var pid string
-	fmt.Print("Enter PID : ")
-	_,err := fmt.Scan(&pid)
-	if err!=nil {
-		fmt.Println("입력 에러",err)
-	}
-	getPPID(pid)
+var once sync.Once
 
-	
+type singleton map[int]int
+
+var globalMap singleton
+
+// 싱글톤 객체 생성
+func NewMap() singleton {
+	// 한번만 실행
+	once.Do(func() {
+		globalMap = make(singleton)
+	})
+
+	return globalMap
 }
 
-func getPPID(pid string){
-	cmd := exec.Command("ps", "-o", "ppid", "-p",pid)
-	output,err := cmd.Output()
+func AddValueByKey(key int, value int) {
+	globalMap := NewMap()
+	globalMap[key] = value
+}
 
-	defer func ()  {
-		if rec := recover(); rec!=nil{
-			if err.Error() == "exit status 1"{
-				fmt.Println("PPID를 찾을 수 없습니다.")
-			} else{
-				fmt.Println("[ERROR] 명령어 에러",err)
-			}
+func ShowItem() {
+	globalMap := NewMap()
+	for k, v := range globalMap {
+		fmt.Println("PID : ", k, "\tPPID : ", v)
+	}
+}
+
+func GetLength() int {
+	globalMap := NewMap()
+	return len(globalMap)
+}
+
+func main() {
+	defer func() {
+		if rec := recover(); rec != nil {
+			fmt.Println("프로그램을 종료합니다.")
 			return
 		}
 	}()
 
-	if err!=nil{
+	var sPID string
+
+	fmt.Print("Enter PID : ")
+	_, err := fmt.Scan(&sPID)
+	if err != nil {
+		fmt.Println("숫자만 입력해주세요.")
 		panic(err)
 	}
 
-	ppid := strings.Fields(string(output))[1]
+	PID, err := strconv.Atoi(sPID)
+	if err != nil {
+		fmt.Println("[ERROR]숫자를 입력해주세요.")
+		panic(err)
+	}
 
-	if ppid=="0"{
-		fmt.Println("탐색을 마쳤습니다.")
+	getPPID(PID)
+	if mapLen := GetLength(); mapLen == 0 {
+		fmt.Println("PPID를 찾을 수 없습니다.")
 		fmt.Println("프로그램을 종료합니다.")
 		return
+	} else {
+		ShowItem()
+		fmt.Println("탐색을 마치고 프로그램을 종료합니다.")
 	}
-	fmt.Printf("%s's PPID is %s\n",pid,ppid)
+}
 
-	getPPID(ppid)
+func getPPID(PID int) {
 
+	defer func() {
+		if rec := recover(); rec != nil {
+			fmt.Println("PPID를 찾을 수 없습니다.")
+			return
+		}
+	}()
+
+	procStatus := fmt.Sprintf("/proc/%d/status", PID)
+	cmd := exec.Command("cat", procStatus)
+
+	output, err := cmd.Output()
+	if err != nil {
+		panic(err)
+	}
+
+	ppidInOutput := strings.Split(string(output[:]), "\n")
+	ppidStr := ppidInOutput[6]
+	sPPID := strings.Fields(ppidStr)[1]
+	PPID, _ := strconv.Atoi(sPPID)
+	if PPID == 0 {
+		return
+	} else {
+		AddValueByKey(PID, PPID)
+		getPPID(PPID)
+	}
 }

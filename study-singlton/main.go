@@ -27,8 +27,8 @@ func AddValueByKey(key string, value string) {
 }
 
 func ShowItem() {
-	globalMap := NewMap()
-	for k, v := range globalMap {
+	instance := NewMap()
+	for k, v := range instance {
 		fmt.Println("key : ", k, "value : ", v)
 	}
 }

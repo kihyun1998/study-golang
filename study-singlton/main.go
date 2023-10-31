@@ -26,11 +26,16 @@ func AddValueByKey(key string, value string) {
 	instance[key] = value
 }
 
+func ShowItem() {
+	globalMap := NewMap()
+	for k, v := range globalMap {
+		fmt.Println("key : ", k, "value : ", v)
+	}
+}
+
 func main() {
 	AddValueByKey("a", "b")
 	AddValueByKey("c", "d")
 
-	globalMap := NewMap()
-	fmt.Println("키 'a'의 값:", globalMap["a"])
-	fmt.Println("키 'c'의 값:", globalMap["c"])
+	ShowItem()
 }

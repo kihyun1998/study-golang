@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 )
 
 func main() {
+	var results = make(map[string]string)
+
 	urls := []string{
 		"https://www.airbnb.com/",
 		"https://www.google.com/",
@@ -20,15 +21,23 @@ func main() {
 	}
 
 	for _, url := range urls {
-		hitURL(url)
+		result := "OK"
+		err := hitURL(url)
+		if err != nil {
+			result = "FAILED"
+		}
+		results[url] = result
+	}
+	for url, result := range results {
+		fmt.Println(url, result)
 	}
 }
 
 func hitURL(url string) error {
-	res, err := http.Get(url)
+	_, err := http.Get(url)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
-	fmt.Println(res)
+
 	return nil
 }

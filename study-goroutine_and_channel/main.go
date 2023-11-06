@@ -6,18 +6,18 @@ import (
 )
 
 func main() {
-	c := make(chan bool)
-	vars := [2]string{"a", "b"}
+	c := make(chan string)
+	vars := [4]string{"a", "b", "c", "d"}
 
 	for _, v := range vars {
 		go count(v, c)
 	}
-	fmt.Println(<-c)
-	fmt.Println(<-c)
+	for i := 0; i < len(vars); i++ {
+		fmt.Println(<-c)
+	}
 }
 
-func count(s string, c chan bool) {
+func count(s string, c chan string) {
 	time.Sleep(time.Second * 1)
-	fmt.Println(s)
-	c <- true
+	c <- s + " here"
 }

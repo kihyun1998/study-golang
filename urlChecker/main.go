@@ -5,8 +5,14 @@ import (
 	"net/http"
 )
 
+type request struct {
+	url    string
+	status string
+}
+
 func main() {
-	var results = make(map[string]string)
+	results := make(map[string]string)
+	c := make(chan request)
 
 	urls := []string{
 		"https://www.airbnb.com/",
@@ -21,23 +27,23 @@ func main() {
 	}
 
 	for _, url := range urls {
-		result := "OK"
-		err := hitURL(url)
-		if err != nil {
-			result = "FAILED"
-		}
-		results[url] = result
+		go hitURL(url, c)
 	}
-	for url, result := range results {
-		fmt.Println(url, result)
+	for i := 0; i < len(urls); i++ {
+		result := <-c
+		results[result.url] = result.status
+	}
+	for url, status := range results {
+		fmt.Println(url, ":", status)
 	}
 }
 
-func hitURL(url string) error {
+func hitURL(url string, c chan<- request) {
 	_, err := http.Get(url)
+	status := "OK"
 	if err != nil {
-		return err
+		status = "FAILED"
 	}
+	c <- request{url: url, status: status}
 
-	return nil
 }
